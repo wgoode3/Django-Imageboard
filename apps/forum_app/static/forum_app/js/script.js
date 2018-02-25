@@ -1,6 +1,4 @@
 var img = document.getElementsByTagName("img");
-var pre = document.getElementsByTagName("pre");
-var imageInput = document.querySelector('input[name="image"]')
 
 for(let i of img){
     i.addEventListener("click", function(e){
@@ -9,6 +7,7 @@ for(let i of img){
         e.target.src = temp;
     });
 }
+
 function previewFile() {
     var preview = document.getElementById('preview');
     var file    = document.querySelector('input[type=file]').files[0];
@@ -26,7 +25,24 @@ function previewFile() {
     }
 }   
 
+// from https://stackoverflow.com/questions/247483/http-get-request-in-javascript
+var HttpClient = function() {
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() { 
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+                aCallback(anHttpRequest.responseText);
+        }
+
+        anHttpRequest.open( "GET", aUrl, true );            
+        anHttpRequest.send( null );
+    }
+}
+
+const client = new HttpClient();
+
 // generate green text and links
+var pre = document.getElementsByTagName("pre");
 
 for(let ele of pre){
     let el = ele.innerHTML;
@@ -37,7 +53,10 @@ for(let ele of pre){
             for(let word in words){
                 if(words[word].search("&gt;&gt;&gt") === 0){
                     let w = words[word].split("&gt;&gt;&gt;")[1]
-                    words[word] = words[word].replace(`&gt;&gt;&gt;${w}`, `<a href="/post/${w}">>>>${w}</a>`);
+                    client.get(`/q/${w}`, function(response) {
+                        let res = JSON.parse(response)
+                        ele.innerHTML = el.replace(`&gt;&gt;&gt;${w}`, `<a href="${res.url}">>>>${w}</a>`);
+                    });
                 }
             }
             lines[line] = words.join(" ");

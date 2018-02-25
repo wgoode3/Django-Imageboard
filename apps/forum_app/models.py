@@ -4,6 +4,7 @@ from PIL import Image
 from io import BytesIO
 import uuid
 from django.core.files.base import ContentFile
+from datetime import datetime
 
 THREAD_THUMB_SIZE = (400, 400)
 POST_THUMB_SIZE = (200, 200)
@@ -73,6 +74,9 @@ class PostManager(models.Manager):
             )
             thread = Post.objects.get(id=post_id)
             thread.replies.add(post)
+            if not post.is_sage:
+                thread.updated_at = datetime.now()
+                thread.save()
             return post
         else:
             return errors

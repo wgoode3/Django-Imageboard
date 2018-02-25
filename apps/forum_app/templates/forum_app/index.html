@@ -12,15 +12,13 @@
     
     <h1 class="center">Imageboard</h1>
     <div class="container">
-        <div class="errors">
         {% if messages %}
-        <ul>
+        <ul class="errors">
             {% for message in messages %}
             <li class="{{ message.tags }}">{{ message }}</li>
             {% endfor %}
         </ul>
         {% endif %}
-        </div>
         <form action="/new_thread" method="post" enctype="multipart/form-data">
             {% csrf_token%}
             Subject: <input type="text" name="subject"><br>

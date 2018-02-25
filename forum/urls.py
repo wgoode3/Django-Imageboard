@@ -17,10 +17,16 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
+from apps.forum_app.views import not_found
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("apps.forum_app.urls")),	
 ]
+
+# routes to serve up media and static files, do something else in production
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# this is a catch-all route for anything that 404's
+urlpatterns.append(path('<path:path>', not_found))
