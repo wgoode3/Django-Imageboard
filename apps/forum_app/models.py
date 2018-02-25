@@ -5,7 +5,8 @@ from io import BytesIO
 import uuid
 from django.core.files.base import ContentFile
 
-THUMB_SIZE = (200, 200)
+THREAD_THUMB_SIZE = (400, 400)
+POST_THUMB_SIZE = (200, 200)
 ALLOWED_EXTENSIONS = ("jpg", "jpeg", "gif", "png")
 
 class PostManager(models.Manager):
@@ -104,7 +105,10 @@ class Post(models.Model):
     def make_thumbnail(self):
 
         image = Image.open(self.image)
-        image.thumbnail(THUMB_SIZE, Image.ANTIALIAS)
+        if self.is_thread:
+            image.thumbnail(THREAD_THUMB_SIZE, Image.ANTIALIAS)
+        else:
+            image.thumbnail(POST_THUMB_SIZE, Image.ANTIALIAS)
 
         thumb_name, thumb_extension = os.path.splitext(self.image.name)
         thumb_extension = thumb_extension.lower()

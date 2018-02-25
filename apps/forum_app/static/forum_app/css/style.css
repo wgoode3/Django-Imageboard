@@ -91,6 +91,12 @@ pre {
     text-align: center;
     margin: 10px;
 }
+.errors {
+    display: inline-block;
+    float: right;
+    color: #920000;
+    font-weight: 900;
+}
 .clearfix::after {
     content: "";
     clear: both;

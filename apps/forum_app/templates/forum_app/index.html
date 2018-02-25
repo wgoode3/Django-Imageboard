@@ -6,11 +6,21 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	{% load static %}
 	<link rel="stylesheet" type="text/css" href="{% static 'forum_app/css/style.css' %}">
+	<link rel="icon" href="{% static 'forum_app/img/favicon.ico' %}">
 </head>
 <body>
 	
 	<h1 class="center">Imageboard</h1>
 	<div class="container">
+		<div class="errors">
+		{% if messages %}
+		<ul>
+			{% for message in messages %}
+			<li class="{{ message.tags }}">{{ message }}</li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+		</div>
 		<form action="/new_thread" method="post" enctype="multipart/form-data">
 			{% csrf_token%}
 			Subject: <input type="text" name="subject"><br>
@@ -22,7 +32,7 @@
 				<img src="" height="100" alt="Image preview..." id="preview">
 			</span><br>
 			<input type="submit" value="submit" class="button">
-		</form>	
+		</form>
 	</div>
 
 	<div class="left">

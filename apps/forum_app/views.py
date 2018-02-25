@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Post
+from django.contrib import messages
 
 def index(request):
 	
@@ -14,12 +15,18 @@ def index(request):
 	return render(request, "forum_app/index.html", {"posts": threads})
 
 def new_thread(request):
-	print(Post.objects.new_thread(request.POST, request.FILES))
+	post = Post.objects.new_thread(request.POST, request.FILES)
+	if type(post) is list:
+		for error in post:
+			messages.add_message(request, messages.ERROR, error)
 	return redirect("/")
 
 def reply(request, post_id):
-	print(Post.objects.new_reply(request.POST, request.FILES, post_id))
-	return redirect("/")
+	post = Post.objects.new_reply(request.POST, request.FILES, post_id)
+	if type(post) is list:
+		for error in post:
+			messages.add_message(request, messages.ERROR, error)
+	return redirect("/thread/{}".format(post_id))
 
 def thread(request, thread_id):
 	return render(request, "forum_app/thread.html", {"post": Post.objects.get(id=thread_id)})
