@@ -97,6 +97,9 @@ pre {
     color: #920000;
     font-weight: 900;
 }
+/*.quote {
+    color: #789922;
+}*/
 .clearfix::after {
     content: "";
     clear: both;
