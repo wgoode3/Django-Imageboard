@@ -1,14 +1,17 @@
 from django.db import models
-import os.path
-from PIL import Image
-from io import BytesIO
-import uuid
+from django.conf import settings
 from django.core.files.base import ContentFile
 from datetime import datetime
+from io import BytesIO
+from PIL import Image
+import os.path
+import uuid
 
-THREAD_THUMB_SIZE = (400, 400)
-POST_THUMB_SIZE = (200, 200)
-ALLOWED_EXTENSIONS = ("jpg", "jpeg", "gif", "png")
+# From settings.py
+THREAD_THUMB_SIZE = settings.THREAD_THUMB_SIZE
+POST_THUMB_SIZE = settings.POST_THUMB_SIZE
+MAX_UPLOAD_SIZE = settings.MAX_UPLOAD_SIZE
+ALLOWED_EXTENSIONS = settings.ALLOWED_EXTENSIONS
 
 class PostManager(models.Manager):
     def new_thread(self, post_data, file_data):
@@ -18,9 +21,13 @@ class PostManager(models.Manager):
         if "image" not in file_data:
             errors.append("You must upload an image to start a thread")
         elif file_data["image"].name.find(".") == -1:
-            errors.append("Image must be '.jpg', 'jpeg', '.gif', or '.png'")
+            errors.append("Image must be '.jpg', '.jpeg', '.gif', or '.png'")
         elif file_data["image"].name.split(".")[-1].lower() not in ALLOWED_EXTENSIONS:
-            errors.append("Image must be '.jpg', 'jpeg', '.gif', or '.png'")
+            errors.append("Image must be '.jpg', '.jpeg', '.gif', or '.png'")
+        elif file_data["image"]._size > MAX_UPLOAD_SIZE:
+            errors.append("Image must 5MB or less in size")
+
+        print(dir(file_data["image"]))
 
         if len(post_data["subject"]) < 1:
             errors.append("You must include a subject to start a thread")
@@ -55,9 +62,11 @@ class PostManager(models.Manager):
         
         if "image" in file_data:
             if file_data["image"].name.find(".") == -1:
-                errors.append("Image must be '.jpg', 'jpeg', '.gif', or '.png'")
+                errors.append("Image must be '.jpg', '.jpeg', '.gif', or '.png'")
             elif file_data["image"].name.split(".")[-1].lower() not in ALLOWED_EXTENSIONS:
-                errors.append("Image must be '.jpg', 'jpeg', '.gif', or '.png'")
+                errors.append("Image must be '.jpg', '.jpeg', '.gif', or '.png'")
+            elif file_data["image"]._size > MAX_UPLOAD_SIZE:
+                errors.append("Image must 5MB or less in size")
             else:
                 file_name = file_data["image"].name
                 file_data["image"].name = "{}.{}".format(uuid.uuid4().hex, file_name.split(".")[-1])
@@ -100,7 +109,8 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
 
-        if self.image != None:
+        # generate thumbnail if it has an image, and it's not a thread being updated
+        if self.image != None and self.created_at == None:
             if not self.make_thumbnail():
                 raise Exception('Could not create thumbnail - is the file type valid?')
 

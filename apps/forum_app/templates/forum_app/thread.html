@@ -5,73 +5,78 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
+    {% load filesize %}
     <link rel="stylesheet" type="text/css" href="{% static 'forum_app/css/style.css' %}">
     <link rel="icon" href="{% static 'forum_app/img/favicon.ico' %}">
 </head>
 <body>
 
-    <h1 class="center">Imageboard</h1>
+    <div class="container">
 
-    <p><a href="/">Back</a></p>
+        <h1 class="center">Imageboard</h1>
 
-    <div class="left">
-        <div class="thread left" id="{{post.id}}">
-            <p class="file_name">
-                File: 
-                <a href="{{MEDIA_URL}}{{post.image}}">{{post.file_name}}</a>
-            </p>
-            <img src="{{MEDIA_URL}}{{post.thumbnail}}" alt="img" data-alt-src="{{MEDIA_URL}}{{post.image}}" class="image left">
-            <div class="text2">
-                <p>
-                    <span class="subject">{{post.subject}}</span> 
-                    <span class="name">
-                        <a {% if post.email %} href="mailto:{{post.email}}" {% endif %}>{{post.name}}</a>
-                    </span> 
-                    {{post.created_at}} No. {{post.id}}
+        <div class="left">
+            <div class="thread left" id="{{post.id}}">
+                <p class="file_name">
+                    File: 
+                    <a href="{{MEDIA_URL}}{{post.image}}">{{post.file_name}}</a> ({{post.image.size|filesize}} {{post.image.width}}x{{post.image.height}})
                 </p>
+                <img src="{{MEDIA_URL}}{{post.thumbnail}}" alt="img" data-alt-src="{{MEDIA_URL}}{{post.image}}" class="image left">
+                <div class="text2">
+                    <p>
+                        <span class="subject">{{post.subject}}</span> 
+                        <span class="name">
+                            <a {% if post.email %} href="mailto:{{post.email}}" {% endif %}>{{post.name}}</a>
+                        </span> 
+                        {{post.created_at}} No. <span class="reply">{{post.id}}</span>
+                        <a href="/" class="move-right">[Back]</a>
+                    </p>
 
-                <pre class="text">{{post.comment}}</pre>
+                    <pre class="text">{{post.comment}}</pre>
+                </div>
+            </div>
+            <div class="replies">
+                {% for reply in post.replies.all %}
+                    <span class="arrows left">>></span>
+                    <div class="post" id="{{reply.id}}">
+                        <p class="block"><span class="name"><a {% if reply.email %} href="mailto:{{reply.email}}" {% endif %}>{{reply.name}}</a></span> {{reply.created_at}} No. <span class="reply">{{reply.id}}</span></p>
+                        {% if reply.image %}
+                            <p class="file_name">
+                                File: 
+                                <a href="{{MEDIA_URL}}{{reply.image}}">{{reply.file_name}}</a>
+                                ({{reply.image.size|filesize}} {{reply.image.width}}x{{reply.image.height}})
+                            </p>
+                            <img src="{{MEDIA_URL}}{{reply.thumbnail}}" alt="img" data-alt-src="{{MEDIA_URL}}{{reply.image}}" class="image left">
+                        {% endif %}
+                        <div class="text">
+                            <pre>{{reply.comment}}</pre>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="form left">
+                <form action="/reply/{{post.id}}" method="post" enctype="multipart/form-data">
+                    {% csrf_token%}
+                    Name: <input type="text" name="name">
+                    Email: <input type="text" name="email"><br>
+                    Comment: <textarea name="comment" cols="40" rows="5"></textarea><br>
+                    <span>
+                        Image: <input type="file" name="image" onchange="previewFile()">
+                        <img src="" height="100" alt="Image preview..." id="preview">
+                    </span><br>
+                    <input type="submit" value="submit" class="button">
+                </form>
+                {% if messages %}
+                <ul class="errors">
+                    {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
             </div>
         </div>
-        <div class="replies">
-            {% for reply in post.replies.all %}
-                <span class="arrows left">>></span>
-                <div class="post" id="{{reply.id}}">
-                    <p class="block"><span class="name"><a {% if reply.email %} href="mailto:{{reply.email}}" {% endif %}>{{reply.name}}</a></span> {{reply.created_at}} No. {{reply.id}}</p>
-                    {% if reply.image %}
-                        <p class="file_name">
-                            File: 
-                            <a href="{{MEDIA_URL}}{{reply.image}}">{{reply.file_name}}</a>
-                        </p>
-                        <img src="{{MEDIA_URL}}{{reply.thumbnail}}" alt="img" data-alt-src="{{MEDIA_URL}}{{reply.image}}" class="image left">
-                    {% endif %}
-                    <div class="text">
-                        <pre>{{reply.comment}}</pre>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
         
-        <div class="form left">
-            <form action="/reply/{{post.id}}" method="post" enctype="multipart/form-data">
-                {% csrf_token%}
-                Name: <input type="text" name="name">
-                Email: <input type="text" name="email"><br>
-                Comment: <textarea name="comment" cols="40" rows="5"></textarea><br>
-                <span>
-                    Image: <input type="file" name="image" onchange="previewFile()">
-                    <img src="" height="100" alt="Image preview..." id="preview">
-                </span><br>
-                <input type="submit" value="submit" class="button">
-            </form>
-            {% if messages %}
-            <ul class="errors">
-                {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
     </div>
 
     <script type="text/javascript" src="{% static 'forum_app/js/script.js' %}"></script>

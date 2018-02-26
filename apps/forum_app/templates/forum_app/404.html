@@ -11,10 +11,14 @@
 <body>
 	<div class="container">
 		<h1 class="center">404</h1>
-		<p class="center">
-			This is probably now what you are looking for... 
-			<a href="/">Back</a>
-		</p>
+		<div class="center">
+			<p>
+				The page you were looking for: 				
+				<span class="path">{{path}}</span>
+				was not found. <a href="/">Go Back</a>
+			</p>
+			<img src="{% static 'forum_app/img/404.png' %}" alt="akarin~">
+		</div>
 	</div>
 </body>
 </html>

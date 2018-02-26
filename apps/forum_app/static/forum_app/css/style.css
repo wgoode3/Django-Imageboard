@@ -1,16 +1,15 @@
-*{
+* {
     margin: 0px;
     padding: 0px;
     font-family: 'helvetica neue', arial, sans-serif;
 }
 
-body{
+body {
     background-color: #eef2ff;
 }
 
 .container {
-    width: 960px;
-    background-color: #d6daf0;
+    width: 1160px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -20,6 +19,7 @@ body{
     margin-left: 10px;
     display: inline-block;
     vertical-align: top;
+    border-top: 1px solid #bcbfd0;
 }
 
 .file_name {
@@ -48,7 +48,7 @@ body{
     font-weight: 900;
 }
 
-.name a{
+.name a {
     color: #117764;
     text-decoration: none;
     font-weight: 900;
@@ -89,7 +89,7 @@ pre {
     background-color: #d6daf0;
 }
 
-.button{
+.button {
     background-color: #8993cd;
     border-color: transparent;
     padding: 5px;
@@ -110,6 +110,14 @@ pre {
     margin: 10px;
 }
 
+.center p{
+    margin: 10px;
+}
+
+p.center {
+    display: block;
+}
+
 .errors {
     display: inline-block;
     float: right;
@@ -119,6 +127,21 @@ pre {
 
 ul.errors {
     list-style-type: square;
+}
+
+.reply {
+    cursor: pointer;
+}
+
+.reply:hover {
+    text-decoration: underline;
+}
+
+.path {
+    background-color: #eee;
+    font-family: "Lucida Console", Monaco, monospace;
+    border: 1px dotted #666;
+    padding: 3px;
 }
 
 .clearfix::after {

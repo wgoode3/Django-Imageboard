@@ -5,86 +5,106 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
+    {% load filesize %}
     <link rel="stylesheet" type="text/css" href="{% static 'forum_app/css/style.css' %}">
     <link rel="icon" href="{% static 'forum_app/img/favicon.ico' %}">
 </head>
 <body>
     
-    <h1 class="center">Imageboard</h1>
     <div class="container">
-        {% if messages %}
-        <ul class="errors">
-            {% for message in messages %}
-            <li class="{{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        <form action="/new_thread" method="post" enctype="multipart/form-data">
-            {% csrf_token%}
-            Subject: <input type="text" name="subject"><br>
-            Name: <input type="text" name="name"><br>
-            Email: <input type="text" name="email"><br>
-            Comment: <br><textarea name="comment" cols="50" rows="8"></textarea><br>
-            <span>
-                Image: <input type="file" name="image" onchange="previewFile()">
-                <img src="" height="100" alt="Image preview..." id="preview">
-            </span><br>
-            <input type="submit" value="submit" class="button">
-        </form>
-    </div>
+        <h1 class="center">Imageboard</h1>
 
-    <div class="left">
-    {% for post in posts reversed %}
-        <div class="thread left">
-            <p class="file_name">
-                File: 
-                <a href="{{MEDIA_URL}}{{post.image}}">{{post.file_name}}</a>
-            </p>
-            <img src="{{MEDIA_URL}}{{post.thumbnail}}" alt="img" data-alt-src="{{MEDIA_URL}}{{post.image}}" class="image left">
-            <div class="text2">
-                <p>
-                    <span class="subject">{{post.subject}}</span> 
-                    <span class="name">
-                        <a {% if post.email %} href="mailto:{{post.email}}" {% endif %}>{{post.name}}</a>
-                    </span> 
-                    {{post.created_at}} No. {{post.id}}
-                    <a href="/thread/{{post.id}}" class="move-right">[Reply]</a>
-                </p>
-
-                <div class="text">
-                    <pre>{{post.comment}}</pre><br>
-                </div>
-
-            </div>
-        </div>
-        <div class="replies">
-            {% if post.hidden %}
-                {% if post.hidden == 1 %}
-                    <p class="text">{{post.hidden}} post omitted. Click reply to view.</p>
-                {% else %}
-                    <p class="text">{{post.hidden}} posts omitted. Click reply to view.</p>
-                {% endif %}
+        <div class="form left">
+            {% if messages %}
+            <ul class="errors">
+                {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
             {% endif %}
-            {% for reply in post.abridged_replies %}
-                <span class="arrows left">>></span>
-                <div class="post">
-                    <p class="block"><span class="name"><a {% if reply.email %} href="mailto:{{reply.email}}" {% endif %}>{{reply.name}}</a></span> {{reply.created_at}} No. {{reply.id}}</p>
-                    {% if reply.image %}
-                        <p class="file_name">
-                            File: 
-                            <a href="{{MEDIA_URL}}{{reply.image}}">{{reply.file_name}}</a>
-                        </p>
-                        <img src="{{MEDIA_URL}}{{reply.thumbnail}}" alt="img" data-alt-src="{{MEDIA_URL}}{{reply.image}}" class="image left">
-                    {% endif %}
+
+            <form action="/new_thread" method="post" enctype="multipart/form-data">
+                {% csrf_token%}
+                Subject: <input type="text" name="subject"><br>
+                Name: <input type="text" name="name"><br>
+                Email: <input type="text" name="email"><br>
+                Comment: <br><textarea name="comment" cols="50" rows="8"></textarea><br>
+                <span>
+                    Image: <input type="file" name="image" onchange="previewFile()">
+                    <img src="" height="100" alt="Image preview..." id="preview">
+                </span><br>
+                <input type="submit" value="submit" class="button">
+            </form>
+        </div>
+    
+        <p class="left text">
+        {% for page in pages %}
+            {% if page != 1%} | {% endif %}
+            <a href="/?p={{page}}">[{{page}}]</a>
+        {% endfor %}
+        </p>
+
+        <div class="left">
+        {% for post in posts %}
+            <div class="thread left">
+                <p class="file_name">
+                    File: 
+                    <a href="{{MEDIA_URL}}{{post.image}}">{{post.file_name}}</a>
+                    ({{post.image.size|filesize}} {{post.image.width}}x{{post.image.height}})
+                </p>
+                <img src="{{MEDIA_URL}}{{post.thumbnail}}" alt="img" data-alt-src="{{MEDIA_URL}}{{post.image}}" class="image left">
+                <div class="text2">
+                    <p>
+                        <span class="subject">{{post.subject}}</span> 
+                        <span class="name">
+                            <a {% if post.email %} href="mailto:{{post.email}}" {% endif %}>{{post.name}}</a>
+                        </span> 
+                        {{post.created_at}} No. {{post.id}}
+                        <a href="/thread/{{post.id}}" class="move-right">[Reply]</a>
+                    </p>
+
                     <div class="text">
-                        <pre>{{reply.comment}}</pre>
+                        <pre>{{post.comment}}</pre><br>
+                    </div>
+
+                    <div class="replies">
+                        {% if post.hidden %}
+                            <p class="text left">
+                                {{post.hidden}} post{% if post.hidden > 1 %}s{% endif %} omitted. Click reply to view.
+                            </p>
+                        {% endif %}
+                        {% for reply in post.abridged_replies %}
+                            <span class="arrows left">>></span>
+                            <div class="post">
+                                <p class="block"><span class="name"><a {% if reply.email %} href="mailto:{{reply.email}}" {% endif %}>{{reply.name}}</a></span> {{reply.created_at}} No. {{reply.id}}</p>
+                                {% if reply.image %}
+                                    <p class="file_name">
+                                        File: 
+                                        <a href="{{MEDIA_URL}}{{reply.image}}">{{reply.file_name}}</a>
+                                        ({{reply.image.size|filesize}} {{reply.image.width}}x{{reply.image.height}})
+                                    </p>
+                                    <img src="{{MEDIA_URL}}{{reply.thumbnail}}" alt="img" data-alt-src="{{MEDIA_URL}}{{reply.image}}" class="image left">
+                                {% endif %}
+                                <div class="text">
+                                    <pre>{{reply.comment}}</pre>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
-            {% endfor %}
+            </div>
+        {% endfor %}
         </div>
-    {% endfor %}
-    </div>
         
+        <p class="left text">
+        {% for page in pages %}
+            {% if page != 1%} | {% endif %}
+            <a href="/?p={{page}}">[{{page}}]</a>
+        {% endfor %}
+        </p> 
+
+    </div>       
+    
     <script type="text/javascript" src="{% static 'forum_app/js/script.js' %}"></script>
 
 </body>
